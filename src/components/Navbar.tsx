@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
-import { Menu, X, BookOpen, Users, Brain, Search } from 'lucide-react';
+import { FriendRequestsDropdown } from '@/components/FriendRequestsDropdown';
+import { Menu, X, Users, Brain, Search, MessageCircle } from 'lucide-react';
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -18,6 +19,7 @@ export function Navbar() {
     { href: '/dashboard', label: 'Dashboard' },
     { href: '/ai-assistant', label: 'AI Assistant', icon: Brain },
     { href: '/find-buddies', label: 'Find Buddies', icon: Search },
+    { href: '/messages', label: 'Messages', icon: MessageCircle },
   ];
 
   const isActive = (path: string) => location.pathname === path;
@@ -66,6 +68,7 @@ export function Navbar() {
                     <Link to={link.href}>{link.label}</Link>
                   </Button>
                 ))}
+                <FriendRequestsDropdown />
                 <Button variant="outline" size="sm" onClick={signOut}>
                   Sign Out
                 </Button>
