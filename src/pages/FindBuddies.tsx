@@ -7,7 +7,8 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
-import { Search, User, BookOpen, Clock, Sparkles, Loader2, Users, MessageCircle } from 'lucide-react';
+import { FriendRequestButton } from '@/components/FriendRequestButton';
+import { Search, User, BookOpen, Clock, Sparkles, Loader2, Users } from 'lucide-react';
 
 interface Profile {
   id: string;
@@ -215,10 +216,7 @@ export default function FindBuddies() {
                       </div>
                     )}
 
-                    <Button className="w-full" variant="outline">
-                      <MessageCircle className="w-4 h-4 mr-2" />
-                      Connect
-                    </Button>
+                    <FriendRequestButton userId={profile.user_id} className="w-full" />
                   </CardContent>
                 </Card>
               ))}
