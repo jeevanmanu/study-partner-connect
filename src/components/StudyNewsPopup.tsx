@@ -76,7 +76,7 @@ export function StudyNewsPopup({ open, onOpenChange }: StudyNewsPopupProps) {
     setLoading(true);
     try {
       // Using the DEV.to API for education/study related articles (free, no API key needed)
-      const response = await fetch('https://dev.to/api/articles?tag=education&per_page=20');
+      const response = await fetch('https://dev.to/api/articles?tag=education&per_page=15');
       const data = await response.json();
       
       const mappedNews: NewsItem[] = data.map((article: any, index: number) => ({
@@ -94,13 +94,163 @@ export function StudyNewsPopup({ open, onOpenChange }: StudyNewsPopupProps) {
         author: article.user?.name,
       }));
 
+      // Add placement and exam tips content
+      const placementExamContent: NewsItem[] = [
+        {
+          id: 'placement-1',
+          title: 'Campus Placement Preparation Guide 2025',
+          description: 'Complete roadmap for cracking campus placements with aptitude, coding, and interview tips.',
+          content: `Getting placed in your dream company requires a strategic approach. Here's your complete guide:
+
+**Aptitude Preparation:**
+• Practice quantitative aptitude daily - focus on percentages, ratios, and time-speed-distance
+• Improve logical reasoning with puzzles and pattern recognition
+• Work on verbal ability through reading and vocabulary building
+
+**Technical Skills:**
+• Master at least one programming language (Python, Java, or C++)
+• Practice Data Structures & Algorithms on platforms like LeetCode
+• Build 2-3 solid projects for your portfolio
+
+**Soft Skills:**
+• Practice mock interviews with peers
+• Work on communication and presentation skills
+• Prepare your elevator pitch
+
+**Interview Tips:**
+• Research the company thoroughly before interviews
+• Prepare STAR method answers for behavioral questions
+• Ask thoughtful questions to interviewers`,
+          category: 'material',
+          source: 'Career Guide',
+          url: '#',
+          timestamp: 'Updated today',
+          trending: true,
+          featured: false,
+          author: 'Career Experts',
+        },
+        {
+          id: 'exam-1',
+          title: 'Effective Exam Study Strategies That Actually Work',
+          description: 'Science-backed techniques to maximize your exam preparation and performance.',
+          content: `Transform your exam preparation with these proven strategies:
+
+**Before Exams:**
+• Create a realistic study schedule 2-3 weeks before
+• Use active recall instead of passive reading
+• Practice with previous year question papers
+• Take regular breaks using the Pomodoro technique
+
+**Study Techniques:**
+• Teach concepts to others (Feynman Technique)
+• Create mind maps for complex topics
+• Use flashcards for quick revision
+• Group similar topics together
+
+**During Exams:**
+• Read all questions before starting
+• Allocate time based on marks
+• Start with questions you're confident about
+• Review answers if time permits
+
+**Stay Healthy:**
+• Get 7-8 hours of sleep before exams
+• Eat nutritious meals
+• Stay hydrated
+• Exercise to reduce stress`,
+          category: 'article',
+          source: 'Study Tips',
+          url: '#',
+          timestamp: 'Featured',
+          trending: true,
+          featured: false,
+          author: 'Education Experts',
+        },
+        {
+          id: 'placement-2',
+          title: 'Top 10 Companies Hiring Fresh Graduates in 2025',
+          description: 'Latest placement opportunities and salary packages for freshers across industries.',
+          content: `The job market for fresh graduates is promising. Here are the top hiring companies:
+
+**Tech Giants:**
+1. Google - Average package: ₹25-40 LPA
+2. Microsoft - Average package: ₹20-35 LPA
+3. Amazon - Average package: ₹18-30 LPA
+
+**Product Companies:**
+4. Flipkart - Average package: ₹15-25 LPA
+5. Swiggy/Zomato - Average package: ₹12-20 LPA
+
+**Consulting:**
+6. Deloitte - Average package: ₹8-15 LPA
+7. KPMG - Average package: ₹7-12 LPA
+
+**Startups:**
+8. Razorpay - Competitive packages with ESOPs
+9. CRED - Known for innovative culture
+10. Meesho - Fast-growing e-commerce
+
+**Tips to Get Noticed:**
+• Build a strong LinkedIn profile
+• Contribute to open source projects
+• Network through alumni connections
+• Apply through employee referrals`,
+          category: 'news',
+          source: 'Placement News',
+          url: '#',
+          timestamp: 'New',
+          trending: true,
+          featured: false,
+          author: 'Placement Cell',
+        },
+        {
+          id: 'exam-2',
+          title: 'Last Minute Revision Tips for Competitive Exams',
+          description: 'Quick revision strategies to boost your score in the final days before exams.',
+          content: `When time is short, smart revision is key:
+
+**Day Before Exam:**
+• Review your notes and flashcards only
+• Don't start new topics
+• Focus on formulas and key concepts
+• Get adequate sleep
+
+**Quick Revision Techniques:**
+• Use mnemonics for lists
+• Review diagrams and flowcharts
+• Read summaries you've prepared
+• Glance through highlighted portions
+
+**Mental Preparation:**
+• Stay calm and positive
+• Visualize success
+• Avoid discussing with anxious peers
+• Pack everything the night before
+
+**Common Mistakes to Avoid:**
+• Don't pull all-nighters
+• Don't skip meals
+• Don't rely on guesswork
+• Don't panic if you forget something`,
+          category: 'article',
+          source: 'Exam Guide',
+          url: '#',
+          timestamp: 'Essential',
+          trending: false,
+          featured: false,
+          author: 'Academic Mentors',
+        },
+      ];
+
+      mappedNews.push(...placementExamContent);
+
       // Also fetch from a study tips RSS feed proxy
       try {
         const studyTipsResponse = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://www.edutopia.org/rss.xml');
         const studyTipsData = await studyTipsResponse.json();
         
         if (studyTipsData.items) {
-          const studyTipsNews: NewsItem[] = studyTipsData.items.slice(0, 10).map((item: any, index: number) => ({
+          const studyTipsNews: NewsItem[] = studyTipsData.items.slice(0, 8).map((item: any, index: number) => ({
             id: `edutopia-${index}`,
             title: item.title,
             description: item.description?.replace(/<[^>]*>/g, '').slice(0, 200) || 'Educational resource from Edutopia.',
@@ -121,16 +271,21 @@ export function StudyNewsPopup({ open, onOpenChange }: StudyNewsPopupProps) {
         console.log('RSS feed unavailable, using primary source');
       }
 
-      setNewsItems(mappedNews);
+      // Shuffle to mix content types
+      const shuffled = mappedNews.sort(() => Math.random() - 0.5);
+      // Keep featured item first
+      const featured = shuffled.find(item => item.featured);
+      const rest = shuffled.filter(item => !item.featured);
+      setNewsItems(featured ? [featured, ...rest] : shuffled);
     } catch (error) {
       console.error('Error fetching news:', error);
-      // Fallback to mock data if API fails
+      // Fallback to comprehensive mock data
       setNewsItems([
         {
           id: '1',
           title: 'New AI-Powered Learning Techniques for 2025',
           description: 'Discover how artificial intelligence is revolutionizing the way students learn and retain information.',
-          content: 'Artificial intelligence is transforming education in unprecedented ways. From personalized learning paths to intelligent tutoring systems, AI is helping students learn more effectively than ever before. Studies show that AI-assisted learning can improve retention rates by up to 40% and reduce study time by 25%. This comprehensive guide explores the latest AI tools and techniques that students can use to enhance their learning experience.',
+          content: 'Artificial intelligence is transforming education in unprecedented ways. From personalized learning paths to intelligent tutoring systems, AI is helping students learn more effectively than ever before. Studies show that AI-assisted learning can improve retention rates by up to 40% and reduce study time by 25%.',
           category: 'news',
           source: 'Education Weekly',
           url: '#',
@@ -140,34 +295,24 @@ export function StudyNewsPopup({ open, onOpenChange }: StudyNewsPopupProps) {
         },
         {
           id: '2',
-          title: 'Complete Mathematics Study Guide - Calculus Edition',
-          description: 'Comprehensive guide covering all calculus concepts from limits to differential equations.',
-          content: 'Master calculus with this comprehensive study guide. Starting from the fundamentals of limits and continuity, progressing through derivatives and integrals, this guide covers everything you need to know. Each concept is explained with clear examples and practice problems.',
+          title: 'Campus Placement Success Stories',
+          description: 'Learn from students who cracked top company interviews with practical tips and strategies.',
+          content: 'Read inspiring stories from students who successfully landed jobs at top companies. They share their preparation strategies, interview experiences, and valuable advice for aspiring candidates.',
           category: 'material',
-          source: 'StudyHub',
+          source: 'Career Hub',
           url: '#',
           timestamp: '1 day ago',
         },
         {
           id: '3',
-          title: 'Physics Explained: Quantum Mechanics Basics',
-          description: 'Video series breaking down complex quantum physics concepts into digestible lessons.',
-          content: 'This video series demystifies quantum mechanics for beginners. Learn about wave-particle duality, the uncertainty principle, and quantum entanglement through easy-to-understand animations and real-world examples.',
-          category: 'video',
-          source: 'Science Channel',
+          title: 'Exam Preparation: 30-Day Study Plan',
+          description: 'Structured study plan to help you prepare effectively for competitive exams.',
+          content: 'This comprehensive 30-day plan breaks down your preparation into manageable daily tasks. Week 1-2: Foundation building. Week 3: Practice and revision. Week 4: Mock tests and final review.',
+          category: 'article',
+          source: 'Study Planner',
           url: '#',
           timestamp: '3 hours ago',
           trending: true,
-        },
-        {
-          id: '4',
-          title: 'How to Improve Your Memory for Exams',
-          description: 'Research-backed techniques to enhance memory retention and recall during tests.',
-          content: 'Memory is crucial for exam success. This article explores proven techniques like spaced repetition, the memory palace method, and active recall. Learn how to structure your study sessions for maximum retention.',
-          category: 'article',
-          source: 'Learning Science',
-          url: '#',
-          timestamp: '5 hours ago',
         },
       ]);
     } finally {
@@ -240,17 +385,47 @@ export function StudyNewsPopup({ open, onOpenChange }: StudyNewsPopupProps) {
                 <img
                   src={selectedNews.imageUrl}
                   alt={selectedNews.title}
-                  className="w-full h-64 object-cover rounded-xl mb-6"
+                  className="w-full h-48 object-cover rounded-xl mb-6"
                 />
               )}
-              <div className="prose prose-sm max-w-none">
-                <p className="text-foreground leading-relaxed text-base">
-                  {selectedNews.content || selectedNews.description}
-                </p>
-                <p className="text-muted-foreground mt-4">
-                  This article provides valuable insights for students looking to enhance their learning experience. 
-                  For the full content and additional resources, visit the original source.
-                </p>
+              <div className="space-y-4">
+                {/* Render content with proper formatting */}
+                {(selectedNews.content || selectedNews.description).split('\n\n').map((paragraph, idx) => (
+                  <div key={idx}>
+                    {paragraph.startsWith('**') && paragraph.endsWith('**') ? (
+                      <h3 className="font-bold text-foreground text-lg mt-4 mb-2">
+                        {paragraph.replace(/\*\*/g, '')}
+                      </h3>
+                    ) : paragraph.startsWith('**') ? (
+                      <h4 className="font-semibold text-foreground mt-3 mb-2">
+                        {paragraph.split('**')[1]}
+                        <span className="font-normal text-muted-foreground">
+                          {paragraph.split('**').slice(2).join('')}
+                        </span>
+                      </h4>
+                    ) : paragraph.startsWith('•') || paragraph.includes('\n•') ? (
+                      <ul className="list-disc list-inside space-y-1 text-foreground/90">
+                        {paragraph.split('\n').map((item, i) => (
+                          <li key={i} className="text-sm leading-relaxed">
+                            {item.replace('•', '').trim()}
+                          </li>
+                        ))}
+                      </ul>
+                    ) : paragraph.match(/^\d+\./) ? (
+                      <ol className="list-decimal list-inside space-y-1 text-foreground/90">
+                        {paragraph.split('\n').map((item, i) => (
+                          <li key={i} className="text-sm leading-relaxed">
+                            {item.replace(/^\d+\.\s*/, '').trim()}
+                          </li>
+                        ))}
+                      </ol>
+                    ) : (
+                      <p className="text-foreground/90 leading-relaxed text-sm">
+                        {paragraph}
+                      </p>
+                    )}
+                  </div>
+                ))}
               </div>
             </ScrollArea>
 
